@@ -42,7 +42,7 @@ export class AuthService implements IAuthService {
       }
 
       // Verify password
-      const passwordMatch = await this.comparePassword(password, user.passwordHash);
+      const passwordMatch = await this.comparePassword(password, user.password);
       
       if (!passwordMatch) {
         return {
