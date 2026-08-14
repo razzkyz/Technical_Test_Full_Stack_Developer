@@ -81,10 +81,11 @@ const ProductionUpdate = () => {
 
       // Get progress history
       const historyResponse = await api.get(`/production/progress/${id}`);
-      setProgressHistory(historyResponse.data);
+      const history = Array.isArray(historyResponse.data) ? historyResponse.data : [];
+      setProgressHistory(history);
 
       // Calculate stage summary
-      calculateStageSummary(historyResponse.data);
+      calculateStageSummary(history);
     } catch (err: any) {
       console.error('Fetch error:', err);
       setError(err.response?.data?.error || 'Failed to load data');
