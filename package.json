@@ -1,0 +1,58 @@
+{
+  "name": "garment-production-system",
+  "version": "1.0.0",
+  "description": "Garment Production Management System - Backend API",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "migration:generate": "prisma migrate dev --name",
+    "migration:run": "prisma migrate deploy",
+    "migration:reset": "prisma migrate reset",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio",
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "keywords": [
+    "garment",
+    "production",
+    "management",
+    "typescript",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "express": "^4.21.2",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.5",
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/cors": "^2.8.17",
+    "@types/jest": "^29.5.14",
+    "@types/supertest": "^6.0.2",
+    "typescript": "^5.7.3",
+    "ts-node": "^10.9.2",
+    "nodemon": "^3.1.9",
+    "prisma": "^5.22.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "supertest": "^7.0.0",
+    "fast-check": "^3.22.0"
+  }
+}

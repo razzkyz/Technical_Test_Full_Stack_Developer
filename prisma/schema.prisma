@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique @db.VarChar(100)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         UserRole
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([username])
+  @@map("users")
+}
+
+model Customer {
+  id        String   @id @db.VarChar(50)
+  name      String   @db.VarChar(200)
+  phone     String   @db.VarChar(20)
+  address   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  orders    Order[]
+
+  @@index([name])
+  @@map("customers")
+}
+
+model Product {
+  id         String      @id @db.VarChar(50)
+  code       String      @unique @db.VarChar(100)
+  name       String      @db.VarChar(200)
+  type       String      @db.VarChar(100)
+  color      String      @db.VarChar(50)
+  size       String      @db.VarChar(20)
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  orderItems OrderItem[]
+
+  @@index([code])
+  @@index([type])
+  @@map("products")
+}
+
+model Order {
+  id          Int             @id @default(autoincrement())
+  orderNumber String          @unique @map("order_number") @db.VarChar(100)
+  customerId  String          @map("customer_id") @db.VarChar(50)
+  orderDate   DateTime        @map("order_date") @db.Date
+  deadline    DateTime        @db.Date
+  status      ProductionStage @default(NOT_PROCESSED)
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  items       OrderItem[]
+  customer    Customer        @relation(fields: [customerId], references: [id])
+
+  @@index([orderNumber])
+  @@index([customerId])
+  @@index([status])
+  @@index([deadline])
+  @@map("orders")
+}
+
+model OrderItem {
+  id                 Int                  @id @default(autoincrement())
+  orderId            Int                  @map("order_id")
+  productId          String               @map("product_id") @db.VarChar(50)
+  quantity           Int
+  currentStage       ProductionStage      @default(NOT_PROCESSED) @map("current_stage")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  order              Order                @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product            Product              @relation(fields: [productId], references: [id])
+  productionProgress ProductionProgress[]
+  rejectRecords      RejectRecord[]
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([currentStage])
+  @@map("order_items")
+}
+
+model ProductionProgress {
+  id          Int             @id @default(autoincrement())
+  orderItemId Int             @map("order_item_id")
+  stage       ProductionStage
+  quantity    Int
+  recordedAt  DateTime        @default(now()) @map("recorded_at")
+  orderItem   OrderItem       @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@index([orderItemId])
+  @@index([stage])
+  @@index([recordedAt])
+  @@map("production_progress")
+}
+
+model RejectRecord {
+  id          Int             @id @default(autoincrement())
+  orderItemId Int             @map("order_item_id")
+  quantity    Int
+  fromStage   ProductionStage @default(QC) @map("from_stage")
+  recordedAt  DateTime        @default(now()) @map("recorded_at")
+  orderItem   OrderItem       @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@index([orderItemId])
+  @@index([recordedAt])
+  @@map("reject_records")
+}
+
+enum UserRole {
+  ADMIN
+  PRODUCTION
+}
+
+enum ProductionStage {
+  NOT_PROCESSED
+  CUTTING
+  SEWING
+  QC
+  FINISHING
+  PACKING
+  COMPLETE
+}
