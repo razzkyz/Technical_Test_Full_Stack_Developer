@@ -5,13 +5,16 @@ Production-ready system untuk mengelola produksi garmen dengan tracking progres 
 ## 🚀 Quick Start
 
 ### For Demo Today (30 minutes)
-**READ THIS FIRST:** [`DEMO_HARI_INI.md`](DEMO_HARI_INI.md)
+**READ THIS FIRST:** [`docs/DEMO_HARI_INI.md`](docs/DEMO_HARI_INI.md)
 
 ### For Testing (15 minutes)
-**READ THIS FIRST:** [`FOR_TESTER.md`](FOR_TESTER.md)
+**READ THIS FIRST:** [`docs/FOR_TESTER.md`](docs/FOR_TESTER.md)
 
 ### For Production Deploy
-**READ THIS FIRST:** [`DEPLOY_SUPABASE.md`](DEPLOY_SUPABASE.md)
+**READ THIS FIRST:** [`docs/DEPLOY_SUPABASE.md`](docs/DEPLOY_SUPABASE.md)
+
+### 📁 Folder Structure
+**SEE:** [`_FOLDER_STRUCTURE.md`](_FOLDER_STRUCTURE.md) - Organized project structure
 
 ---
 
@@ -101,16 +104,17 @@ npm run dev
 
 ### Quick Import Database
 
-If you have `database-ready-to-import.sql`:
+Use the main database file: `database/supabase-schema.sql`
 
 ```bash
 # PostgreSQL local
-psql -U postgres -d garment_production -f database-ready-to-import.sql
+psql -U postgres -d garment_production -f database/supabase-schema.sql
 
-# Supabase (via SQL Editor)
-1. Copy paste file content to Supabase SQL Editor
-2. Run query
-3. Done!
+# Supabase (via SQL Editor) - RECOMMENDED
+1. Open Supabase SQL Editor
+2. Copy paste content from database/supabase-schema.sql
+3. Run query
+4. Done! (Includes sample data)
 ```
 
 ---
@@ -151,21 +155,21 @@ NOT_PROCESSED → CUTTING → SEWING → QC → FINISHING → PACKING → COMPLE
 ## 📚 Documentation
 
 ### Essential (Read First!)
-- [`DEMO_HARI_INI.md`](DEMO_HARI_INI.md) - Quick deploy for demo today
-- [`FOR_TESTER.md`](FOR_TESTER.md) - Complete testing guide
-- [`DEPLOY_SUPABASE.md`](DEPLOY_SUPABASE.md) - Production deployment
-- [`setup-supabase.md`](setup-supabase.md) - Supabase quick setup
-- [`SECURITY.md`](SECURITY.md) - Security notes
-- [`QUICK_GUIDE.md`](QUICK_GUIDE.md) - Quick reference
+- [`docs/DEMO_HARI_INI.md`](docs/DEMO_HARI_INI.md) - Quick deploy for demo today
+- [`docs/FOR_TESTER.md`](docs/FOR_TESTER.md) - Complete testing guide
+- [`docs/DEPLOY_SUPABASE.md`](docs/DEPLOY_SUPABASE.md) - Production deployment
+- [`docs/URGENT_FIXES_NOW.md`](docs/URGENT_FIXES_NOW.md) - Critical fixes before submit
+- [`docs/FINAL_AUDIT_REPORT.md`](docs/FINAL_AUDIT_REPORT.md) - Complete audit
+- [`docs/QUANTITY_TRACKING_EXPLAINED.md`](docs/QUANTITY_TRACKING_EXPLAINED.md) - How tracking works
 
-### Additional Documentation (in `docs/`)
-- `API_DOCUMENTATION.md` - API endpoints reference
-- `DATABASE_SETUP.md` - Database setup details
-- `DEPLOYMENT_OPTIONS.md` - Compare deployment options
-- `FINAL_CHECKLIST.md` - Project completion status
-- `UI_ENHANCEMENTS.md` - UI improvements details
-- `WHATS_NEW.md` - Latest features
-- `KIRIM_KE_PENGUJI.md` - For sending to testers
+### Technical Documentation
+- [`docs/API_DOCUMENTATION.md`](docs/API_DOCUMENTATION.md) - API endpoints reference
+- [`docs/DATABASE_SETUP.md`](docs/DATABASE_SETUP.md) - Database setup details
+- [`docs/DEPLOYMENT_GUIDE.md`](docs/DEPLOYMENT_GUIDE.md) - Complete deployment guide
+- [`docs/RAILWAY_DEPLOYMENT.md`](docs/RAILWAY_DEPLOYMENT.md) - Railway specific
+- [`docs/VERCEL_DEPLOYMENT.md`](docs/VERCEL_DEPLOYMENT.md) - Vercel specific
+- [`docs/SECURITY.md`](docs/SECURITY.md) - Security notes
+- [`docs/QUICK_GUIDE.md`](docs/QUICK_GUIDE.md) - Quick reference
 
 ---
 
@@ -173,26 +177,50 @@ NOT_PROCESSED → CUTTING → SEWING → QC → FINISHING → PACKING → COMPLE
 
 ```
 konveksitest/
-├── src/                        # Backend source code
+├── 📁 src/                     # Backend source code (Express + TypeScript)
 │   ├── controllers/            # API route handlers
 │   ├── services/               # Business logic
 │   ├── repositories/           # Data access layer
-│   └── middleware/             # Auth, CORS, etc.
-├── frontend/                   # React frontend app
+│   ├── middleware/             # Auth, CORS, validation
+│   └── main.ts                 # Entry point
+│
+├── 📁 frontend/                # React frontend app (Vite + TypeScript)
 │   ├── src/
 │   │   ├── components/         # Reusable components
 │   │   ├── pages/              # Page components
-│   │   ├── services/           # API client
-│   │   └── store/              # Zustand state
-│   └── dist/                   # Build output
-├── prisma/                     # Database schema & seeds
-│   ├── schema.prisma           # Database models
-│   └── seed.ts                 # Seed script
-├── docs/                       # Additional documentation
-├── database-ready-to-import.sql # Ready-to-use database dump
-├── .env.example                # Environment template
-└── README.md                   # This file
+│   │   ├── services/           # API client (axios)
+│   │   └── store/              # Zustand state management
+│   └── dist/                   # Build output (gitignored)
+│
+├── 📁 prisma/                  # Database ORM
+│   ├── schema.prisma           # Database models & relations
+│   └── seed.ts                 # Seed script (admin user)
+│
+├── 📁 database/                # SQL files & database exports
+│   ├── supabase-schema.sql     # ⭐ MAIN: Use this for setup
+│   ├── database-complete.sql   # Complete export
+│   └── database-ready-to-import.sql  # Alternative import
+│
+├── 📁 docs/                    # All documentation
+│   ├── URGENT_FIXES_NOW.md     # Critical fixes
+│   ├── FINAL_AUDIT_REPORT.md   # Complete audit
+│   ├── API_DOCUMENTATION.md    # API reference
+│   ├── DEPLOYMENT_GUIDE.md     # Deploy instructions
+│   └── ... (20+ documentation files)
+│
+├── 📁 scripts/                 # Utility scripts
+│   ├── export-database.bat     # Export DB to SQL
+│   ├── import-database.bat     # Import SQL to DB
+│   ├── start-servers.bat       # Start dev servers
+│   └── generate-sql-with-hash.js  # Password hash generator
+│
+├── 📄 README.md                # This file - start here!
+├── 📄 _FOLDER_STRUCTURE.md     # Detailed folder structure
+├── 📄 .env.example             # Environment template
+└── 📄 package.json             # Dependencies
 ```
+
+**Full Structure:** See [`_FOLDER_STRUCTURE.md`](_FOLDER_STRUCTURE.md) for complete details.
 
 ---
 
@@ -210,7 +238,7 @@ Total: $0/month to start! 🎉
 
 ### Deploy Steps (30 minutes)
 
-See [`DEPLOY_SUPABASE.md`](DEPLOY_SUPABASE.md) for complete guide.
+See [`docs/DEPLOY_SUPABASE.md`](docs/DEPLOY_SUPABASE.md) for complete guide.
 
 **Quick version:**
 1. Import database to Supabase (5 min)
@@ -246,7 +274,7 @@ See [`DEPLOY_SUPABASE.md`](DEPLOY_SUPABASE.md) for complete guide.
 ## 🧪 Testing
 
 ### Manual Testing
-Follow testing checklist in [`FOR_TESTER.md`](FOR_TESTER.md)
+Follow testing checklist in [`docs/FOR_TESTER.md`](docs/FOR_TESTER.md)
 
 ### Test Accounts
 ```
@@ -307,7 +335,7 @@ npx prisma db pull
 npx ts-node prisma/seed.ts
 ```
 
-More solutions in [`FOR_TESTER.md`](FOR_TESTER.md) → Troubleshooting section.
+More solutions in [`docs/FOR_TESTER.md`](docs/FOR_TESTER.md) → Troubleshooting section.
 
 ---
 
@@ -367,17 +395,21 @@ Proprietary - All rights reserved
 ## 📞 Support
 
 **Documentation:**
-- Main docs in root folder
-- Additional docs in `docs/` folder
-- Quick reference: [`QUICK_GUIDE.md`](QUICK_GUIDE.md)
+- All docs in `docs/` folder
+- Quick reference: [`docs/QUICK_GUIDE.md`](docs/QUICK_GUIDE.md)
+- Folder structure: [`_FOLDER_STRUCTURE.md`](_FOLDER_STRUCTURE.md)
 
 **For Demo:**
-- Read: [`DEMO_HARI_INI.md`](DEMO_HARI_INI.md)
+- Read: [`docs/DEMO_HARI_INI.md`](docs/DEMO_HARI_INI.md)
 - Deploy in 30 minutes!
 
 **For Testing:**
-- Read: [`FOR_TESTER.md`](FOR_TESTER.md)
+- Read: [`docs/FOR_TESTER.md`](docs/FOR_TESTER.md)
 - Setup in 15 minutes!
+
+**Before Submit:**
+- Read: [`docs/URGENT_FIXES_NOW.md`](docs/URGENT_FIXES_NOW.md)
+- Critical fixes (10 minutes)
 
 ---
 

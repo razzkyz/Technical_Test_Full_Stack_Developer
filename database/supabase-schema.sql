@@ -146,6 +146,45 @@ INSERT INTO "products" ("id", "code", "name", "type", "color", "size", "created_
 ('CL-002', 'CL-002', 'Celana Pendek Casual', 'Celana', 'Abu-abu', '30', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('JK-001', 'JK-001', 'Jaket Bomber', 'Jaket', 'Hitam', 'L', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
+-- Insert sample orders with items
+INSERT INTO "orders" ("order_number", "customer_id", "order_date", "deadline", "status", "created_at", "updated_at") VALUES
+('ORD-2024-001', 'CUST-001', '2024-08-01', '2024-08-20', 'CUTTING'::"ProductionStage", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('ORD-2024-002', 'CUST-002', '2024-08-05', '2024-08-25', 'NOT_PROCESSED'::"ProductionStage", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('ORD-2024-003', 'CUST-003', '2024-08-10', '2024-08-30', 'SEWING'::"ProductionStage", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Insert order items
+-- Order 1: In production (CUTTING stage)
+INSERT INTO "order_items" ("order_id", "product_id", "quantity", "current_stage", "created_at", "updated_at")
+SELECT 1, 'KS-001', 100, 'CUTTING'::"ProductionStage", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP;
+
+INSERT INTO "order_items" ("order_id", "product_id", "quantity", "current_stage", "created_at", "updated_at")
+SELECT 1, 'KM-001', 50, 'CUTTING'::"ProductionStage", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP;
+
+-- Order 2: Not yet started
+INSERT INTO "order_items" ("order_id", "product_id", "quantity", "current_stage", "created_at", "updated_at")
+SELECT 2, 'KS-002', 200, 'NOT_PROCESSED'::"ProductionStage", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP;
+
+-- Order 3: In sewing stage
+INSERT INTO "order_items" ("order_id", "product_id", "quantity", "current_stage", "created_at", "updated_at")
+SELECT 3, 'CL-001', 75, 'SEWING'::"ProductionStage", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP;
+
+-- Insert production progress records for Order 1
+-- Item 1: 100 pcs moved to CUTTING
+INSERT INTO "production_progress" ("order_item_id", "stage", "quantity", "recorded_at")
+SELECT 1, 'CUTTING'::"ProductionStage", 100, CURRENT_TIMESTAMP;
+
+-- Item 2: 50 pcs moved to CUTTING
+INSERT INTO "production_progress" ("order_item_id", "stage", "quantity", "recorded_at")
+SELECT 2, 'CUTTING'::"ProductionStage", 50, CURRENT_TIMESTAMP;
+
+-- Insert production progress for Order 3
+-- 75 pcs moved to CUTTING, then 75 to SEWING
+INSERT INTO "production_progress" ("order_item_id", "stage", "quantity", "recorded_at")
+SELECT 4, 'CUTTING'::"ProductionStage", 75, CURRENT_TIMESTAMP - INTERVAL '2 days';
+
+INSERT INTO "production_progress" ("order_item_id", "stage", "quantity", "recorded_at")
+SELECT 4, 'SEWING'::"ProductionStage", 75, CURRENT_TIMESTAMP - INTERVAL '1 day';
+
 -- ================================================
 -- DONE!
 -- ================================================
