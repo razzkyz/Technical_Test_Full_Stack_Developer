@@ -147,6 +147,52 @@ export const OrderDetailSkeleton = () => (
 );
 
 // ────────────────────────────────────────────────
+// Running Orders Skeleton (Production Page)
+// ────────────────────────────────────────────────
+export const RunningOrderCardSkeleton = () => (
+  <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm animate-pulse">
+    {/* Header */}
+    <div className="bg-gradient-to-r from-indigo-100 to-purple-100 p-6">
+      <div className="flex justify-between items-start">
+        <div className="space-y-2">
+          <SkeletonBox className="h-6 w-40" />
+          <SkeletonBox className="h-4 w-48" />
+        </div>
+        <SkeletonBox className="h-8 w-32 rounded-xl" />
+      </div>
+    </div>
+    
+    {/* Items */}
+    <div className="p-6 space-y-3">
+      <SkeletonBox className="h-4 w-32 mb-4" />
+      {[1, 2].map(i => (
+        <div key={i} className="bg-gray-50 rounded-xl p-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex-1 space-y-2">
+              <SkeletonBox className="h-5 w-56" />
+              <SkeletonBox className="h-3 w-40" />
+            </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <SkeletonBox className="h-8 w-24 rounded-xl" />
+              <SkeletonBox className="h-8 w-32 rounded-xl" />
+              <SkeletonBox className="h-8 w-28 rounded-xl" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+export const RunningOrdersSkeleton = ({ count = 3 }: { count?: number }) => (
+  <div className="space-y-6">
+    {Array.from({ length: count }).map((_, i) => (
+      <RunningOrderCardSkeleton key={i} />
+    ))}
+  </div>
+);
+
+// ────────────────────────────────────────────────
 // Generic Page Fallback  (used by Suspense)
 // ────────────────────────────────────────────────
 export const PageFallback = () => (

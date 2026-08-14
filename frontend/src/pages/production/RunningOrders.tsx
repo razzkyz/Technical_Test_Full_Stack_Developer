@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
+import { RunningOrdersSkeleton } from '../../components/Skeleton';
 
 interface OrderItem {
   id: number;
@@ -12,6 +13,7 @@ interface OrderItem {
     color: string;
     size: string;
   };
+  progressSummary?: Record<string, number>;
 }
 
 interface RunningOrder {
@@ -61,6 +63,19 @@ const RunningOrders = () => {
     return colors[stage] || 'bg-gray-100 text-gray-700';
   };
 
+  const getStageStyle = (stage: string) => {
+    const styles: Record<string, string> = {
+      NOT_PROCESSED: 'bg-gray-50 text-gray-700 border-gray-300',
+      CUTTING: 'bg-yellow-50 text-yellow-800 border-yellow-300',
+      SEWING: 'bg-blue-50 text-blue-800 border-blue-300',
+      QC: 'bg-purple-50 text-purple-800 border-purple-300',
+      FINISHING: 'bg-indigo-50 text-indigo-800 border-indigo-300',
+      PACKING: 'bg-pink-50 text-pink-800 border-pink-300',
+      COMPLETE: 'bg-green-50 text-green-800 border-green-300'
+    };
+    return styles[stage] || 'bg-gray-50 text-gray-700 border-gray-300';
+  };
+
   const isLate = (deadline: string) => {
     return new Date(deadline) < new Date();
   };
@@ -82,8 +97,17 @@ const RunningOrders = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+      <div>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            🏭 Running Orders
+          </h1>
+          <p className="text-gray-600 text-lg font-medium">Loading orders...</p>
+        </div>
+        
+        {/* Skeleton Loading */}
+        <RunningOrdersSkeleton count={3} />
       </div>
     );
   }
@@ -217,53 +241,82 @@ const RunningOrders = () => {
             <div className="p-6">
               <h4 className="font-semibold text-gray-700 mb-4">Production Items</h4>
               <div className="space-y-3">
-                {order.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex-1">
-                      <h5 className="font-bold text-gray-900 mb-1">
-                        {item.product.code} - {item.product.name}
-                      </h5>
-                      <p className="text-sm text-gray-600">
-                        {item.product.color} • {item.product.size} • Qty: {item.quantity}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className={`px-4 py-2 rounded-xl text-sm font-semibold ${getStageColor(item.currentStage)}`}>
-                        {item.currentStage.replace(/_/g, ' ')}
-                      </span>
-                      
-                      {item.currentStage !== 'COMPLETE' && item.currentStage !== 'NOT_PROCESSED' && (
-                        <Link
-                          to={item.currentStage === 'QC' ? `/production/qc/${item.id}` : `/production/update/${item.id}`}
-                          state={{ item, orderNumber: order.orderNumber }}
-                          className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors text-sm font-semibold shadow-md"
-                        >
-                          {item.currentStage === 'QC' ? 'Perform QC' : 'Update Progress'}
-                        </Link>
-                      )}
-                      
-                      {item.currentStage === 'NOT_PROCESSED' && (
-                        <Link
-                          to={`/production/update/${item.id}`}
-                          state={{ item, orderNumber: order.orderNumber }}
-                          className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors text-sm font-semibold shadow-md"
-                        >
-                          Start Production
-                        </Link>
-                      )}
+                {order.items.map((item) => {
+                  // Get stage quantities from progressSummary
+                  const summary = item.progressSummary || {};
+                  const stages = ['NOT_PROCESSED', 'CUTTING', 'SEWING', 'QC', 'FINISHING', 'PACKING', 'COMPLETE'];
+                  const activeStages = stages.filter(stage => summary[stage] > 0);
+                  
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex flex-col gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                    >
+                      {/* Product Info */}
+                      <div className="flex-1">
+                        <h5 className="font-bold text-gray-900 mb-1">
+                          {item.product.code} - {item.product.name}
+                        </h5>
+                        <p className="text-sm text-gray-600">
+                          {item.product.color} • {item.product.size} • Total: {item.quantity} pcs
+                        </p>
+                      </div>
 
-                      <Link
-                        to={`/orders/${order.id}`}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors text-sm font-semibold shadow-md"
-                      >
-                        View Details
-                      </Link>
+                      {/* Stage Breakdown with Quantities */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-semibold text-gray-500 mr-2">Quantity per Stage:</span>
+                        {activeStages.length > 0 ? (
+                          activeStages.map((stage) => (
+                            <div
+                              key={stage}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${getStageStyle(stage)}`}
+                            >
+                              {stage.replace(/_/g, ' ')}: {summary[stage]} pcs
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600">
+                            Belum ada progress
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className={`px-4 py-2 rounded-xl text-sm font-semibold ${getStageColor(item.currentStage)}`}>
+                          Current: {item.currentStage.replace(/_/g, ' ')}
+                        </span>
+                        
+                        {item.currentStage !== 'COMPLETE' && item.currentStage !== 'NOT_PROCESSED' && (
+                          <Link
+                            to={item.currentStage === 'QC' ? `/production/qc/${item.id}` : `/production/update/${item.id}`}
+                            state={{ item, orderNumber: order.orderNumber }}
+                            className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors text-sm font-semibold shadow-md"
+                          >
+                            {item.currentStage === 'QC' ? 'Perform QC' : 'Update Progress'}
+                          </Link>
+                        )}
+                        
+                        {item.currentStage === 'NOT_PROCESSED' && (
+                          <Link
+                            to={`/production/update/${item.id}`}
+                            state={{ item, orderNumber: order.orderNumber }}
+                            className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors text-sm font-semibold shadow-md"
+                          >
+                            Start Production
+                          </Link>
+                        )}
+
+                        <Link
+                          to={`/orders/${order.id}`}
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors text-sm font-semibold shadow-md"
+                        >
+                          View Details
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
