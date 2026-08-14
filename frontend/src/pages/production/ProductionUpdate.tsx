@@ -60,32 +60,43 @@ const ProductionUpdate = () => {
       setLoading(true);
       setError('');
       
-      // Get order item details (assuming you have this endpoint)
-      const itemResponse = await api.get(`/orders/${id}`);
+      // Get progress data for this order item
+      const progressResponse = await api.get(`/production/progress/${id}`);
       
-      // For now, we'll assume the response structure
-      // You might need to adjust based on actual API
-      if (itemResponse.data && itemResponse.data.items && itemResponse.data.items.length > 0) {
-        const item = itemResponse.data.items[0];
-        setOrderItem({
-          id: item.id,
-          quantity: item.quantity,
-          currentStage: item.currentStage,
-          order: {
-            orderNumber: itemResponse.data.orderNumber,
-            customer: itemResponse.data.customer
-          },
-          product: item.product
-        });
-      }
-
-      // Get progress history
-      const historyResponse = await api.get(`/production/progress/${id}`);
-      const history = Array.isArray(historyResponse.data) ? historyResponse.data : [];
+      // Extract data from response
+      const { progress, summary } = progressResponse.data;
+      const history = Array.isArray(progress) ? progress : [];
       setProgressHistory(history);
 
-      // Calculate stage summary
-      calculateStageSummary(history);
+      // Get order item details from running orders
+      const ordersResponse = await api.get('/production/running-orders');
+      const orders = Array.isArray(ordersResponse.data) ? ordersResponse.data : [];
+      
+      // Find the order item with matching ID
+      let foundItem = null;
+      for (const order of orders) {
+        const item = order.items?.find((i: any) => i.id === parseInt(id!));
+        if (item) {
+          foundItem = {
+            id: item.id,
+            quantity: item.quantity,
+            currentStage: item.currentStage,
+            order: {
+              orderNumber: order.orderNumber,
+              customer: order.customer
+            },
+            product: item.product
+          };
+          break;
+        }
+      }
+
+      if (foundItem) {
+        setOrderItem(foundItem);
+        calculateStageSummary(history);
+      } else {
+        setError('Order item not found');
+      }
     } catch (err: any) {
       console.error('Fetch error:', err);
       setError(err.response?.data?.error || 'Failed to load data');
